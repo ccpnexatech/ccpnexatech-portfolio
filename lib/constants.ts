@@ -5,10 +5,10 @@ export const COMPANY = {
   city:     'Fortaleza',
   state:    'CE',
   country:  'Brasil',
-  url:      'https://ccpnexatech.com.br',
-  email:    'contato@ccpnexatech.com.br',
+  url:      'https://ccpnexatech-portfolio.vercel.app',
+  email:    'ccpnexatech@gmail.com',
   yearsMarket:     1,
-  yearsExperience: 6, // 1 formal + 5 informal
+  yearsExperience: 5,
 } as const
 
 export const NAV_LINKS = [
