@@ -1,6 +1,7 @@
-import type { NextConfig } from 'next'
-
-const nextConfig: NextConfig = {
+// @ts-check
+ 
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   // Otimização de imagens
   images: {
     formats: ['image/avif', 'image/webp'],
@@ -30,4 +31,4 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
 }
 
-export default nextConfig
+module.exports = nextConfig
