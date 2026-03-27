@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import { syne, inter } from './fonts'
+import { SpeedInsights } from "@vercel/speed-insights/next"
+import { Analytics } from "@vercel/analytics/next"
 import { COMPANY, NAV_LINKS, SERVICES } from '@/lib/constants'
 import Navbar from '@/components/ui/Navbar'
 import Footer from '@/components/ui/Footer'
@@ -205,6 +207,8 @@ export default function RootLayout({
         {/* Rodapé */}
         <Footer />
 
+        <SpeedInsights />
+        <Analytics />
       </body>
     </html>
   )
