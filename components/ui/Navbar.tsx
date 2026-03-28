@@ -18,14 +18,12 @@ export default function Navbar({ links }: NavbarProps) {
   const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
 
-  /* Detecta scroll para mudar visual da navbar */
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24)
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  /* Fecha menu mobile ao pressionar Escape */
   useEffect(() => {
     if (!open) return
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false)
@@ -33,7 +31,6 @@ export default function Navbar({ links }: NavbarProps) {
     return () => window.removeEventListener('keydown', onKey)
   }, [open])
 
-  /* Bloqueia scroll do body enquanto menu está aberto */
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : ''
     return () => { document.body.style.overflow = '' }
@@ -42,10 +39,10 @@ export default function Navbar({ links }: NavbarProps) {
   return (
     <header
       className={cn(
-        'fixed top-0 inset-x-0 z-50 transition-all duration-nx-default',
-        scrolled
-          ? 'bg-navy/95 backdrop-blur-md border-b border-[rgba(255,255,255,0.06)] shadow-nx-lg'
-          : 'bg-transparent',
+        // Sempre navy — sem transparent no topo para não perder legibilidade
+        // sobre bg-surface (claro). Só adiciona blur + sombra ao scrollar.
+        'fixed top-0 inset-x-0 z-50 bg-navy transition-all duration-nx-default',
+        scrolled && 'backdrop-blur-md border-b border-[rgba(255,255,255,0.06)] shadow-nx-lg',
       )}
     >
       <nav
@@ -89,7 +86,7 @@ export default function Navbar({ links }: NavbarProps) {
           </Link>
         </div>
 
-        {/* Botão hamburguer — mobile */}
+        {/* Hamburguer — mobile */}
         <button
           type="button"
           className="md:hidden flex flex-col justify-center items-center w-9 h-9 gap-[5px] rounded-nx-sm text-[#E8EDF5] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
@@ -98,24 +95,9 @@ export default function Navbar({ links }: NavbarProps) {
           aria-controls="mobile-menu"
           aria-label={open ? 'Fechar menu' : 'Abrir menu'}
         >
-          <span
-            className={cn(
-              'w-5 h-px bg-current transition-all duration-nx-default origin-center',
-              open && 'translate-y-[6px] rotate-45',
-            )}
-          />
-          <span
-            className={cn(
-              'w-5 h-px bg-current transition-all duration-nx-default',
-              open && 'opacity-0 scale-x-0',
-            )}
-          />
-          <span
-            className={cn(
-              'w-5 h-px bg-current transition-all duration-nx-default origin-center',
-              open && '-translate-y-[6px] -rotate-45',
-            )}
-          />
+          <span className={cn('w-5 h-px bg-current transition-all duration-nx-default origin-center', open && 'translate-y-[6px] rotate-45')} />
+          <span className={cn('w-5 h-px bg-current transition-all duration-nx-default',               open && 'opacity-0 scale-x-0')} />
+          <span className={cn('w-5 h-px bg-current transition-all duration-nx-default origin-center', open && '-translate-y-[6px] -rotate-45')} />
         </button>
 
       </nav>
@@ -142,7 +124,6 @@ export default function Navbar({ links }: NavbarProps) {
               {link.label}
             </Link>
           ))}
-
           <div className="mt-4 pt-4 border-t border-[rgba(255,255,255,0.08)]">
             <Link
               href="#contato"
@@ -169,18 +150,8 @@ function LogoMark() {
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
     >
-      <polygon
-        points="80,8 148,44 148,116 80,152 12,116 12,44"
-        stroke="#0066FF"
-        strokeWidth="6"
-        fill="rgba(0,102,255,0.08)"
-      />
-      <polygon
-        points="80,28 128,54 128,106 80,132 32,106 32,54"
-        stroke="#0066FF"
-        strokeWidth="4"
-        fill="rgba(0,102,255,0.14)"
-      />
+      <polygon points="80,8 148,44 148,116 80,152 12,116 12,44" stroke="#0066FF" strokeWidth="6"  fill="rgba(0,102,255,0.08)" />
+      <polygon points="80,28 128,54 128,106 80,132 32,106 32,54"  stroke="#0066FF" strokeWidth="4"  fill="rgba(0,102,255,0.14)" />
       <polygon points="80,52 104,80 80,108 56,80" fill="#0066FF" />
       <circle cx="80" cy="80" r="10" fill="white" />
     </svg>

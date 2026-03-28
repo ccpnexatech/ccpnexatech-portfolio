@@ -10,16 +10,16 @@ type BadgeColor = 'blue' | 'cyan' | 'gold' | 'green' | 'gray'
 type FilterKey  = 'todos' | 'landing-page' | 'ecommerce' | 'dashboard' | 'institucional'
 
 interface Project {
-  id:          string
-  title:       string
-  description: string
-  filter:      FilterKey
-  tags:        { label: string; color: BadgeColor }[]
-  stack:       string[]
-  level:       { label: string; color: BadgeColor }
+  id:           string
+  title:        string
+  description:  string
+  filter:       FilterKey
+  tags:         { label: string; color: BadgeColor }[]
+  stack:        string[]
+  level:        { label: string; color: BadgeColor }
   deliveryDays: number
-  slug:        string
-  preview:     React.ReactNode
+  slug:         string
+  preview:      React.ReactNode
 }
 
 /* ── Estilos de badge ──────────────────────────────────────────────────────── */
@@ -221,21 +221,22 @@ function ProjectCard({ project }: { project: Project }) {
       exit="exit"
       className="group bg-[#0A1828] border border-[rgba(255,255,255,0.07)] rounded-nx-lg overflow-hidden transition-all duration-nx-default hover:border-[rgba(0,102,255,0.35)] hover:-translate-y-[3px] hover:shadow-[0_12px_40px_rgba(0,0,0,0.3)]"
     >
-      {/* Preview */}
-      <div className="relative aspect-video overflow-hidden">
+      {/* Preview — clicável */}
+      <Link
+        href={`/projects/${project.slug}`}
+        className="block relative aspect-video overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset"
+        aria-label={`Abrir projeto ${project.title}`}
+      >
         {project.preview}
+
         {/* Hover overlay */}
-        <div className="absolute inset-0 flex items-center justify-center bg-[rgba(0,102,255,0.08)] opacity-0 group-hover:opacity-100 transition-opacity duration-nx-default">
-          <Link
-            href={`/projects/${project.slug}`}
-            className="inline-flex items-center gap-1.5 bg-accent text-white text-caption font-[500] px-4 py-2 rounded-nx-sm shadow-nx-accent"
-            aria-label={`Ver projeto ${project.title}`}
-          >
-            Ver projeto
+        <div className="absolute inset-0 flex items-center justify-center bg-[rgba(0,102,255,0.10)] opacity-0 group-hover:opacity-100 transition-opacity duration-nx-default">
+          <span className="inline-flex items-center gap-1.5 bg-accent text-white text-caption font-[500] px-4 py-2 rounded-nx-sm shadow-nx-accent">
+            Ver projeto ao vivo
             <span aria-hidden="true">↗</span>
-          </Link>
+          </span>
         </div>
-      </div>
+      </Link>
 
       {/* Info */}
       <div className="p-[22px]">
@@ -284,10 +285,22 @@ function ProjectCard({ project }: { project: Project }) {
           )}>
             {project.level.label}
           </span>
-          <span className="flex items-center gap-1 text-caption text-text-muted">
-            <IconClock />
-            {project.deliveryDays} dias de entrega
-          </span>
+
+          <div className="flex items-center gap-4">
+            <span className="flex items-center gap-1 text-caption text-text-muted">
+              <IconClock />
+              {project.deliveryDays} dias
+            </span>
+
+            <Link
+              href={`/projects/${project.slug}`}
+              className="text-caption font-[500] text-accent flex items-center gap-1 hover:gap-1.5 transition-all duration-nx-fast"
+              aria-label={`Abrir projeto ${project.title}`}
+            >
+              Ver projeto
+              <span aria-hidden="true">↗</span>
+            </Link>
+          </div>
         </div>
       </div>
     </motion.div>

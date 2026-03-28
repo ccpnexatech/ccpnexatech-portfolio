@@ -4,7 +4,15 @@ export default function Hero() {
   return (
     <section
       id="hero"
-      style={{ background: '#0F1F3D', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+      style={{
+        background: '#0F1F3D',
+        // Desconta os 64 px do pt-16 do <main> para o hero ocupar
+        // exatamente a viewport restante sem scroll desnecessário
+        minHeight: 'calc(100vh - 64px)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
     >
       <div style={{ textAlign: 'center', color: '#fff', fontFamily: 'sans-serif' }}>
         <p style={{ color: '#0066FF', fontSize: 13, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 16 }}>

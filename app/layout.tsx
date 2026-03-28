@@ -199,8 +199,8 @@ export default function RootLayout({
         {/* Navegação */}
         <Navbar links={NAV_LINKS} />
 
-        {/* Conteúdo principal */}
-        <main id="main-content" tabIndex={-1}>
+        {/* Conteúdo principal — pt-16 compensa a Navbar fixed de 64px */}
+        <main id="main-content" tabIndex={-1} className="pt-16">
           {children}
         </main>
 
