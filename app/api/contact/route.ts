@@ -14,13 +14,12 @@ interface ContactPayload {
 
 /* ── Rate limiting simples (in-memory, reseta no cold start) ───────────────── */
 const RATE_LIMIT_MAP = new Map<string, { count: number; reset: number }>()
-const RATE_LIMIT_MAX = 3     // máx. 3 envios
-const RATE_LIMIT_WINDOW = 60 * 60 * 1000 // por hora
+const RATE_LIMIT_MAX    = 3
+const RATE_LIMIT_WINDOW = 60 * 60 * 1000
 
 function isRateLimited(ip: string): boolean {
   const now  = Date.now()
   const data = RATE_LIMIT_MAP.get(ip)
-
   if (!data || now > data.reset) {
     RATE_LIMIT_MAP.set(ip, { count: 1, reset: now + RATE_LIMIT_WINDOW })
     return false
@@ -29,6 +28,12 @@ function isRateLimited(ip: string): boolean {
   data.count++
   return false
 }
+
+/* ── Modo de envio ─────────────────────────────────────────────────────────── */
+// Configure no .env.local ou nas variáveis do Vercel:
+//   EMAIL_MODE=mailto   → apenas loga, cliente abre mailto no frontend
+//   EMAIL_MODE=resend   → envia via Resend API (requer RESEND_API_KEY)
+const EMAIL_MODE = process.env.EMAIL_MODE ?? 'mailto'
 
 /* ── Handler ───────────────────────────────────────────────────────────────── */
 export async function POST(req: NextRequest) {
@@ -58,47 +63,60 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'E-mail inválido' }, { status: 422 })
   }
 
-  /* Envio via Resend */
-  const RESEND_API_KEY = process.env.RESEND_API_KEY
-  const CONTACT_EMAIL  = process.env.CONTACT_EMAIL ?? COMPANY.email
+  const CONTACT_EMAIL = process.env.CONTACT_EMAIL ?? COMPANY.email
 
-  if (!RESEND_API_KEY) {
-    console.error('[contact] RESEND_API_KEY não configurada')
-    return NextResponse.json({ error: 'Configuração de e-mail ausente' }, { status: 500 })
-  }
+  /* ── Switch de modo ──────────────────────────────────────────────────────── */
+  if (EMAIL_MODE === 'resend') {
+    const RESEND_API_KEY = process.env.RESEND_API_KEY
 
-  const emailBody = buildEmailHtml(payload)
-
-  try {
-    const res = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization:  `Bearer ${RESEND_API_KEY}`,
-      },
-      body: JSON.stringify({
-        from:    `${COMPANY.name} <onboarding@resend.dev>`,
-        to:      [CONTACT_EMAIL],
-        replyTo: email,
-        subject: `[Orçamento] ${service} — ${name}`,
-        html:    emailBody,
-      }),
-    })
-
-    if (!res.ok) {
-      const err = await res.text()
-      console.error('[contact] Resend error:', err)
-      return NextResponse.json({ error: 'Falha ao enviar e-mail' }, { status: 502 })
+    if (!RESEND_API_KEY) {
+      console.error('[contact] RESEND_API_KEY não configurada')
+      return NextResponse.json({ error: 'Configuração de e-mail ausente' }, { status: 500 })
     }
 
-    return NextResponse.json({ success: true }, { status: 200 })
-  } catch (err) {
-    console.error('[contact] Fetch error:', err)
-    return NextResponse.json({ error: 'Erro interno' }, { status: 500 })
+    try {
+      const res = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization:  `Bearer ${RESEND_API_KEY}`,
+        },
+        body: JSON.stringify({
+          from:    `${COMPANY.name} <onboarding@resend.dev>`,
+          to:      [CONTACT_EMAIL],
+          replyTo: email,
+          subject: `[Orçamento] ${service} — ${name}`,
+          html:    buildEmailHtml(payload),
+        }),
+      })
+
+      if (!res.ok) {
+        const err = await res.text()
+        console.error('[contact] Resend error:', err)
+        return NextResponse.json({ error: 'Falha ao enviar e-mail' }, { status: 502 })
+      }
+    } catch (err) {
+      console.error('[contact] Fetch error:', err)
+      return NextResponse.json({ error: 'Erro interno' }, { status: 500 })
+    }
+
+  } else {
+    // Modo mailto — loga o payload e retorna sucesso
+    // O frontend abre o cliente de e-mail com os dados preenchidos
+    console.info('[contact] mailto mode — novo contato recebido:', {
+      name,
+      email,
+      service,
+      company: payload.company,
+      level:   payload.level,
+      budget:  payload.budget,
+    })
   }
+
+  return NextResponse.json({ success: true, mode: EMAIL_MODE }, { status: 200 })
 }
 
-/* ── Template do e-mail ────────────────────────────────────────────────────── */
+/* ── Template do e-mail (usado apenas no modo resend) ──────────────────────── */
 function buildEmailHtml(p: ContactPayload): string {
   const row = (label: string, value: string) =>
     value
@@ -124,12 +142,12 @@ function buildEmailHtml(p: ContactPayload): string {
     </div>
 
     <table style="width:100%;border-collapse:collapse;margin:8px 0">
-      ${row('Nome',          p.name)}
-      ${row('E-mail',        p.email)}
-      ${row('Empresa',       p.company)}
-      ${row('Tipo',          p.service)}
-      ${row('Nível',         p.level)}
-      ${row('Investimento',  p.budget)}
+      ${row('Nome',         p.name)}
+      ${row('E-mail',       p.email)}
+      ${row('Empresa',      p.company)}
+      ${row('Tipo',         p.service)}
+      ${row('Nível',        p.level)}
+      ${row('Investimento', p.budget)}
     </table>
 
     <div style="padding:16px 28px;border-top:1px solid #E2E8F0">
@@ -142,7 +160,7 @@ function buildEmailHtml(p: ContactPayload): string {
     <div style="padding:16px 28px;background:#F5F7FA;border-top:1px solid #E2E8F0">
       <p style="margin:0;font-size:12px;color:#6B7A9B">
         Responda diretamente a este e-mail para entrar em contato com <strong>${p.name}</strong>.
-        Enviado via formulário de contato — ${COMPANY.name} · ${COMPANY.cnpj}
+        Enviado via formulário — ${COMPANY.name} · ${COMPANY.cnpj}
       </p>
     </div>
   </div>

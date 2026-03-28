@@ -99,7 +99,16 @@ export default function Contact() {
         const data = await res.json().catch(() => ({}))
         throw new Error(data?.error || 'Erro ao enviar')
       }
+      const data = await res.json().catch(() => ({}))
       setStatus('success')
+
+      if (data?.mode === 'mailto') {
+        const subject = encodeURIComponent(`[Orçamento] ${form.service} — ${form.name}`)
+        const body = encodeURIComponent(
+          `Nome: ${form.name}\nE-mail: ${form.email}\nEmpresa: ${form.company || '—'}\nServiço: ${form.service}\nNível: ${form.level || '—'}\nInvestimento: ${form.budget || '—'}\n\nMensagem:\n${form.message}`
+        )
+        window.open(`mailto:${COMPANY.email}?subject=${subject}&body=${body}`)
+      }
       setForm({ name:'', email:'', company:'', service:'', level:'', budget:'', message:'' })
       setTouched({})
     } catch (err: unknown) {
