@@ -44,6 +44,10 @@ export const metadata: Metadata = {
   creator: COMPANY.name,
   publisher: COMPANY.name,
 
+  verification: {
+    google: COMPANY.googleSearch,
+  },
+
   robots: {
     index: true,
     follow: true,

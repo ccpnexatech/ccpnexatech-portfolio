@@ -9,6 +9,7 @@ export const COMPANY = {
   email:    'ccpnexatech@gmail.com',
   yearsMarket:     1,
   yearsExperience: 5,
+  googleSearch: 'MId5NRT_p2Enk4im6BPXj2kWhQaBKYuDf5dsREb5g3s',
 } as const
 
 export const NAV_LINKS = [
