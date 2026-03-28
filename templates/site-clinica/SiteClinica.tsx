@@ -453,7 +453,7 @@ export default function SiteClinica() {
 
   const errors   = validateForm(form)
   const formOk   = Object.keys(errors).length === 0
-  const getErr   = (field: keyof BookingForm) => touched[field] ? errors[field] : undefined
+  const getErr = (field: keyof FormErrors) => touched[field as keyof BookingForm] ? errors[field] : undefined
 
   const touchField = (field: keyof BookingForm) =>
     setTouched(p => ({ ...p, [field]: true }))

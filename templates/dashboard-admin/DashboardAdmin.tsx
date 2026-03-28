@@ -1448,7 +1448,7 @@ export default function DashboardAdmin() {
                           </div>
                           <div style={{ flex:1,minWidth:0 }}>
                             <div style={{ display:'flex',alignItems:'center',gap:8,marginBottom:2 }}>
-                              <p style={{ fontSize:13,fontWeight:600,color:T.text,truncate:true }}>{s.device}</p>
+                              <p style={{ fontSize:13,fontWeight:600,color:T.text,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' }}>{s.device}</p>
                               {s.current && <span style={{ fontSize:10,fontWeight:700,background:accentDim,color:accent,padding:'2px 6px',borderRadius:4 }}>Sessão atual</span>}
                             </div>
                             <p style={{ fontSize:11,color:T.textDim }}>{s.location} · {s.ip} · {s.lastActive}</p>

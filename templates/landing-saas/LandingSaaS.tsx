@@ -1249,7 +1249,6 @@ export default function LandingSaaS() {
                       borderRadius: 9,
                       fontSize: 14,
                       fontWeight: 600,
-                      border: 'none',
                       cursor: 'pointer',
                       background: plan.featured
                         ? '#0066FF'
