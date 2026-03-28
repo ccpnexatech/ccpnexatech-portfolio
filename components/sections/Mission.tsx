@@ -13,6 +13,8 @@ const MVV = [
     accentClass: 'border-t-accent',
     tagClass: 'bg-[rgba(0,102,255,0.10)] text-accent',
     glowColor: 'rgba(0,102,255,0.08)',
+    hoverBorder: 'hover:border-[rgba(0,102,255,0.15)]',
+    hoverShadow: 'hover:shadow-[0_16px_48px_rgba(0,102,255,0.08)]',
   },
   {
     icon: '🔭',
@@ -22,6 +24,8 @@ const MVV = [
     accentClass: 'border-t-cyan',
     tagClass: 'bg-[rgba(0,194,224,0.10)] text-cyan',
     glowColor: 'rgba(0,194,224,0.08)',
+    hoverBorder: 'hover:border-[rgba(0,194,224,0.15)]',
+    hoverShadow: 'hover:shadow-[0_16px_48px_rgba(0,194,224,0.08)]',
   },
   {
     icon: '⚡',
@@ -31,6 +35,8 @@ const MVV = [
     accentClass: 'border-t-gold',
     tagClass: 'bg-[rgba(240,165,0,0.10)] text-gold',
     glowColor: 'rgba(240,165,0,0.06)',
+    hoverBorder: 'hover:border-[rgba(240,165,0,0.15)]',
+    hoverShadow: 'hover:shadow-[0_16px_48px_rgba(240,165,0,0.06)]',
   },
 ] as const
 
@@ -43,8 +49,8 @@ const cardVariant = {
 }
 
 export default function Mission() {
-  const ref           = useRef<HTMLElement>(null)
-  const inView        = useInView(ref, { once: true, margin: '-60px' })
+  const ref            = useRef<HTMLElement>(null)
+  const inView         = useInView(ref, { once: true, margin: '-60px' })
   const prefersReduced = useReducedMotion()
 
   return (
@@ -87,7 +93,7 @@ export default function Mission() {
           </h2>
         </motion.div>
 
-        {/* Cards */}
+        {/* Cards — whileHover removido; CSS hover em vez de JS (non-composited fix) */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {MVV.map((item, i) => (
             <motion.div
@@ -100,11 +106,12 @@ export default function Mission() {
                 'relative bg-[#0A1828] rounded-nx-lg p-7',
                 'border border-[rgba(255,255,255,0.07)] border-t-4',
                 item.accentClass,
-                'group cursor-default transition-all duration-300',
-                'hover:border-[rgba(255,255,255,0.12)] hover:-translate-y-1',
+                'group cursor-default',
+                'transition-all duration-300',
+                '-translate-y-0 hover:-translate-y-1',
+                item.hoverBorder,
+                item.hoverShadow,
               )}
-              style={{ boxShadow: 'none' }}
-              whileHover={{ boxShadow: `0 16px 48px ${item.glowColor}` }}
             >
               {/* Icon */}
               <div className="w-11 h-11 rounded-[10px] flex items-center justify-center text-xl mb-5 bg-[rgba(255,255,255,0.04)] transition-transform duration-300 group-hover:scale-110" aria-hidden="true">

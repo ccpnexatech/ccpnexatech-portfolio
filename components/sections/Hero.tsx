@@ -6,10 +6,10 @@ import { COMPANY } from '@/lib/constants'
 
 // ── Typing effect hook ────────────────────────────────────────────────────────
 function useTyping(words: string[], speed = 80, pause = 2000) {
-  const [text, setText]       = useState('')
+  const [text, setText]           = useState('')
   const [wordIndex, setWordIndex] = useState(0)
   const [deleting, setDeleting]   = useState(false)
-  const prefersReduced = useReducedMotion()
+  const prefersReduced            = useReducedMotion()
 
   useEffect(() => {
     if (prefersReduced) { setText(words[0]); return }
@@ -45,91 +45,25 @@ function FloatingBadge({
       transition={{ duration: 0.6, delay, ease: [0.34, 1.56, 0.64, 1] }}
       className={className}
     >
-      <motion.div
-        animate={prefersReduced ? {} : { y: [0, -6, 0] }}
-        transition={{ duration: 3 + delay, repeat: Infinity, ease: 'easeInOut' }}
-      >
+      {/* Float animation via CSS instead of Framer — avoids non-composited issue */}
+      <div style={{
+        animation: prefersReduced ? 'none' : `heroFloat ${3 + delay}s ease-in-out infinite`,
+      }}>
         {children}
-      </motion.div>
+      </div>
     </motion.div>
   )
 }
 
 export default function Hero() {
   const prefersReduced = useReducedMotion()
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const animRef   = useRef<number>(0)
   const typedWord = useTyping(['negócios.', 'resultados.', 'crescimento.', 'conversões.'], 75, 2200)
-
-  // ── Particle grid background ──────────────────────────────────────────────
-  useEffect(() => {
-    if (prefersReduced) return
-    const canvas = canvasRef.current
-    if (!canvas) return
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
-
-    let W = 0, H = 0
-    const dots: { x: number; y: number; opacity: number; speed: number }[] = []
-
-    function resize() {
-      W = canvas!.width  = canvas!.offsetWidth
-      H = canvas!.height = canvas!.offsetHeight
-      dots.length = 0
-      const cols = Math.ceil(W / 60)
-      const rows = Math.ceil(H / 60)
-      for (let r = 0; r <= rows; r++) {
-        for (let c = 0; c <= cols; c++) {
-          dots.push({
-            x: c * 60 + (Math.random() - 0.5) * 10,
-            y: r * 60 + (Math.random() - 0.5) * 10,
-            opacity: Math.random() * 0.25 + 0.05,
-            speed: Math.random() * 0.003 + 0.001,
-          })
-        }
-      }
-    }
-
-    function draw(t: number) {
-      ctx!.clearRect(0, 0, W, H)
-      dots.forEach(d => {
-        const pulse = Math.sin(t * d.speed * 1000) * 0.5 + 0.5
-        ctx!.beginPath()
-        ctx!.arc(d.x, d.y, 1.5, 0, Math.PI * 2)
-        ctx!.fillStyle = `rgba(0,102,255,${d.opacity * pulse})`
-        ctx!.fill()
-      })
-      // Draw connecting lines for nearby dots
-      for (let i = 0; i < dots.length; i++) {
-        for (let j = i + 1; j < dots.length; j++) {
-          const dx = dots[i].x - dots[j].x
-          const dy = dots[i].y - dots[j].y
-          const dist = Math.sqrt(dx * dx + dy * dy)
-          if (dist < 80) {
-            ctx!.beginPath()
-            ctx!.moveTo(dots[i].x, dots[i].y)
-            ctx!.lineTo(dots[j].x, dots[j].y)
-            ctx!.strokeStyle = `rgba(0,102,255,${0.04 * (1 - dist / 80)})`
-            ctx!.lineWidth = 0.5
-            ctx!.stroke()
-          }
-        }
-      }
-      animRef.current = requestAnimationFrame(draw)
-    }
-
-    resize()
-    animRef.current = requestAnimationFrame(draw)
-    const ro = new ResizeObserver(resize)
-    ro.observe(canvas)
-    return () => { cancelAnimationFrame(animRef.current); ro.disconnect() }
-  }, [prefersReduced])
 
   // ── Stats data ────────────────────────────────────────────────────────────
   const stats = [
     { value: `${COMPANY.yearsExperience}+`, label: 'anos de experiência' },
-    { value: '100%',                         label: 'foco em resultado' },
-    { value: '3',                            label: 'níveis de projeto' },
+    { value: '100%',                         label: 'foco em resultado'  },
+    { value: '3',                            label: 'níveis de projeto'  },
   ]
 
   return (
@@ -138,29 +72,29 @@ export default function Hero() {
       className="relative min-h-[calc(100vh-64px)] flex items-center overflow-hidden bg-navy"
       aria-labelledby="hero-headline"
     >
-      {/* ── Background layers ─────────────────────────────────────────── */}
-      {/* Particle canvas */}
-      <canvas
-        ref={canvasRef}
-        className="absolute inset-0 w-full h-full pointer-events-none"
+      {/* ── Background layers — pure CSS, zero JS ─────────────────────── */}
+      <div
+        className="absolute inset-0 pointer-events-none"
         aria-hidden="true"
+        style={{
+          background: `
+            radial-gradient(ellipse 60% 60% at 20% 40%, rgba(0,102,255,0.18) 0%, transparent 60%),
+            radial-gradient(ellipse 40% 40% at 90% 80%, rgba(0,194,224,0.08) 0%, transparent 60%),
+            radial-gradient(ellipse 80% 80% at 50% 50%, transparent 40%, rgba(15,31,61,0.7) 100%)
+          `,
+        }}
       />
 
-      {/* Radial gradient overlays */}
-      <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
-        {/* Primary glow — center left */}
-        <div
-          className="absolute top-1/4 -left-1/4 w-[700px] h-[700px] rounded-full opacity-25"
-          style={{ background: 'radial-gradient(circle, rgba(0,102,255,1) 0%, transparent 70%)', filter: 'blur(80px)' }}
-        />
-        {/* Secondary glow — bottom right */}
-        <div
-          className="absolute bottom-0 right-0 w-[500px] h-[500px] rounded-full opacity-10"
-          style={{ background: 'radial-gradient(circle, rgba(0,194,224,1) 0%, transparent 70%)', filter: 'blur(100px)' }}
-        />
-        {/* Vignette */}
-        <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 80% 80% at 50% 50%, transparent 40%, rgba(15,31,61,0.8) 100%)' }} />
-      </div>
+      {/* Dot-grid background — CSS only, no canvas */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        aria-hidden="true"
+        style={{
+          backgroundImage: 'radial-gradient(rgba(0,102,255,0.18) 1px, transparent 1px)',
+          backgroundSize: '48px 48px',
+          opacity: 0.35,
+        }}
+      />
 
       {/* ── Main content ──────────────────────────────────────────────── */}
       <div className="relative container-nx py-nx-16 grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-16 items-center">
@@ -280,23 +214,22 @@ export default function Hero() {
 
         {/* Right — visual / floating badges */}
         <div className="hidden lg:flex items-center justify-center relative h-[420px]">
-          {/* Central logo mark — large */}
+          {/* Central logo mark */}
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.2, ease: [0.34, 1.56, 0.64, 1] }}
             className="relative"
           >
-            <motion.div
-              animate={prefersReduced ? {} : { rotate: [0, 360] }}
-              transition={{ duration: 60, repeat: Infinity, ease: 'linear' }}
+            {/* Rotating rings — CSS transform only (composited) */}
+            <div
               className="absolute inset-[-40px] rounded-full border border-[rgba(0,102,255,0.08)]"
+              style={{ animation: prefersReduced ? 'none' : 'spinSlow 60s linear infinite' }}
               aria-hidden="true"
             />
-            <motion.div
-              animate={prefersReduced ? {} : { rotate: [360, 0] }}
-              transition={{ duration: 40, repeat: Infinity, ease: 'linear' }}
+            <div
               className="absolute inset-[-20px] rounded-full border border-[rgba(0,194,224,0.06)]"
+              style={{ animation: prefersReduced ? 'none' : 'spinSlow 40s linear infinite reverse' }}
               aria-hidden="true"
             />
             <svg
@@ -310,7 +243,6 @@ export default function Hero() {
               <circle cx="80" cy="80" r="4" fill="white" />
               <circle cx="80" cy="80" r="36" stroke="#0066FF" strokeWidth="0.5" strokeDasharray="3 3" fill="none" opacity="0.4" />
             </svg>
-            {/* Glow */}
             <div
               className="absolute inset-0 pointer-events-none"
               style={{ background: 'radial-gradient(circle, rgba(0,102,255,0.2) 0%, transparent 70%)', filter: 'blur(20px)' }}
@@ -371,7 +303,7 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* ── Scroll indicator ──────────────────────────────────────────── */}
+      {/* ── Scroll indicator ──────────────────────────────────────────────── */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -381,16 +313,17 @@ export default function Hero() {
       >
         <span className="text-[10px] text-text-muted uppercase tracking-[0.14em]">scroll</span>
         <div className="w-px h-10 bg-gradient-to-b from-text-muted/40 to-transparent relative overflow-hidden">
-          <motion.div
+          <div
             className="absolute top-0 left-0 w-full bg-accent"
-            style={{ height: '40%' }}
-            animate={prefersReduced ? {} : { y: ['-100%', '300%'] }}
-            transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+            style={{
+              height: '40%',
+              animation: prefersReduced ? 'none' : 'scrollDot 1.5s ease-in-out infinite',
+            }}
           />
         </div>
       </motion.div>
 
-      {/* ── Global keyframes ──────────────────────────────────────────── */}
+      {/* ── Global keyframes ──────────────────────────────────────────────── */}
       <style>{`
         @keyframes gradientShift {
           0%   { background-position: 0% 50% }
@@ -400,6 +333,17 @@ export default function Hero() {
         @keyframes cursorBlink {
           0%, 100% { opacity: 1 }
           50%       { opacity: 0 }
+        }
+        @keyframes spinSlow {
+          to { transform: rotate(360deg) }
+        }
+        @keyframes heroFloat {
+          0%, 100% { transform: translateY(0px) }
+          50%       { transform: translateY(-6px) }
+        }
+        @keyframes scrollDot {
+          0%   { transform: translateY(-100%) }
+          100% { transform: translateY(300%) }
         }
       `}</style>
     </section>

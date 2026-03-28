@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 
-// Sections — serão implementadas progressivamente
 import Hero           from '@/components/sections/Hero'
 import About          from '@/components/sections/About'
 import Mission        from '@/components/sections/Mission'
@@ -11,8 +10,9 @@ import Kanban         from '@/components/sections/Kanban'
 import Pricing        from '@/components/sections/Pricing'
 import Contact        from '@/components/sections/Contact'
 
+// Usa o template definido no layout: "Tecnologia que transforma negócios | CCP NEXATECH"
 export const metadata: Metadata = {
-  title: 'CCP NEXATECH — Tecnologia que transforma negócios',
+  title: 'Tecnologia que transforma negócios',
 }
 
 export default function HomePage() {
