@@ -8,7 +8,7 @@ const STATS = [
   { value: `${COMPANY.yearsExperience}+`, label: 'Anos de experiência em desenvolvimento web', color: 'text-accent', border: 'border-accent/20' },
   { value: '100%',                         label: 'Foco em performance e resultado real',       color: 'text-cyan',   border: 'border-cyan/20'   },
   { value: '3',                            label: 'Níveis de projeto: Basic, Pro e Enterprise', color: 'text-gold',   border: 'border-gold/20'   },
-  { value: 'A+',                           label: 'Score de segurança e performance web',        color: 'text-[#E8EDF5]', border: 'border-white/10' },
+  { value: 'A+',                           label: 'Score de segurança e performance web',        color: 'text-navy', border: 'border-white/10' },
 ]
 
 const DIFFERENTIALS = [
